@@ -1,13 +1,13 @@
-/**
+/*
 	AVR-Toolbox libraries for ATMEL MCUs.
 	Operating with brushless DC motors with no hardware sensors.
-	
+
 	atb_bldc.h
-	
+
     Copyright (C) 2016-2017 Sergei Ivanov <nsndrz@hotmail.org>
 */
 
-/**
+/*
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -25,8 +25,35 @@
 #ifndef __ATB_BLDC
 #define __ATB_BLDC
 
+#include <avr/io.h>
 #include "atb_bldc_hal.h"
 
+volatile uint8_t commutation_phase;
+volatile uint8_t revemf_counter;
 
+/**
+* Rotate motor with low speed.
+* Call from timer overflow vector to rotate motor without
+*   reverse EMF information from sensoring circut.
+*/
+void atb_bldc_no_reverse_emf_timer_ovf() {
+
+} /* function atb_bldc_no_reverse_emf_timer_ovf */
+
+/**
+* Commutate motor phases.
+*/
+void atb_bldc_commutation() {
+
+} /* function atb_bldc_commutation */
+
+/**
+* First run initialization. */
+void atb_bldc_initialize() {
+
+    commutation_phase = 0;
+    revemf_counter = 0;
+
+} /* function atb_bldc_init */
 
 #endif // __ATB_BLDC
