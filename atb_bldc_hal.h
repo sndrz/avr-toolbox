@@ -28,26 +28,20 @@
 
 /** Transistors control pins */
 
-#define	ATB_BLDC_U_HI_DDR	0x17
-#define	ATB_BLDC_U_HI_PRT	0x18
-#define	ATB_BLDC_U_HI_BIT	1
-
+#define	ATB_BLDC_U_HI_REG   TCCR1A
+#define	ATB_BLDC_U_HI_BIT	COM1A1
 #define	ATB_BLDC_U_LO_DDR	0x17
 #define	ATB_BLDC_U_LO_PRT	0x18
 #define	ATB_BLDC_U_LO_BIT	1
 
-#define	ATB_BLDC_V_HI_DDR	0x17
-#define	ATB_BLDC_V_HI_PRT	0x18
-#define	ATB_BLDC_V_HI_BIT	1
-
+#define	ATB_BLDC_V_HI_REG   TCCR1A
+#define	ATB_BLDC_V_HI_BIT	COM1A1
 #define	ATB_BLDC_V_LO_DDR	0x17
 #define	ATB_BLDC_V_LO_PRT	0x18
 #define	ATB_BLDC_V_LO_BIT	1
 
-#define	ATB_BLDC_W_HI_DDR	0x17
-#define	ATB_BLDC_W_HI_PRT	0x18
-#define	ATB_BLDC_W_HI_BIT	1
-
+#define	ATB_BLDC_W_HI_REG   TCCR1A
+#define	ATB_BLDC_W_HI_BIT	COM1A1
 #define	ATB_BLDC_W_LO_DDR	0x17
 #define	ATB_BLDC_W_LO_PRT	0x18
 #define	ATB_BLDC_W_LO_BIT	1
@@ -58,4 +52,4 @@
 #define	ATB_BLDC_INP_PWM_PRT	0x18
 #define	ATB_BLDC_INP_PWM_BIT	1
 
-#endif // __ATB_BLDC_HAL
+#endif /* __ATB_BLDC_HAL */

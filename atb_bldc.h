@@ -28,32 +28,52 @@
 #include <avr/io.h>
 #include "atb_bldc_hal.h"
 
-volatile uint8_t commutation_phase;
-volatile uint8_t revemf_counter;
+#define ATB_BLDC_U_HI_EN ( ATB_BLDC_U_HI_REG |= (1 << ATB_BLDC_U_HI_BIT) );
+#define ATB_BLDC_U_HI_DS ( ATB_BLDC_U_HI_REG &= ~(1 << ATB_BLDC_U_HI_BIT) );
+#define ATB_BLDC_U_LO_EN ( ATB_BLDC_U_LO_PRT |= (1 << ATB_BLDC_U_LO_BIT) );
+#define ATB_BLDC_U_LO_DS ( ATB_BLDC_U_LO_PRT &= ~(1 << ATB_BLDC_U_LO_BIT) );
+
+#define ATB_BLDC_V_HI_EN ( ATB_BLDC_V_HI_REG |= (1 << ATB_BLDC_V_HI_BIT) );
+#define ATB_BLDC_V_HI_DS ( ATB_BLDC_V_HI_REG &= ~(1 << ATB_BLDC_V_HI_BIT) );
+#define ATB_BLDC_V_LO_EN ( ATB_BLDC_V_LO_PRT |= (1 << ATB_BLDC_V_LO_BIT) );
+#define ATB_BLDC_V_LO_DS ( ATB_BLDC_V_LO_PRT &= ~(1 << ATB_BLDC_V_LO_BIT) );
+
+#define ATB_BLDC_W_HI_EN ( ATB_BLDC_W_HI_REG |= (1 << ATB_BLDC_W_HI_BIT) );
+#define ATB_BLDC_W_HI_DS ( ATB_BLDC_W_HI_REG &= ~(1 << ATB_BLDC_W_HI_BIT) );
+#define ATB_BLDC_W_LO_EN ( ATB_BLDC_W_LO_PRT |= (1 << ATB_BLDC_W_LO_BIT) );
+#define ATB_BLDC_W_LO_DS ( ATB_BLDC_W_LO_PRT &= ~(1 << ATB_BLDC_W_LO_BIT) );
+
+#define ATB_BLDC_REVEMF_COUNTER_MAX  200
+
+volatile uint8_t atb_bldc_compha;
+volatile uint8_t atb_bldc_revemf_cnt;
 
 /**
 * Rotate motor with low speed.
 * Call from timer overflow vector to rotate motor without
 *   reverse EMF information from sensoring circut.
 */
-void atb_bldc_no_reverse_emf_timer_ovf() {
+void atb_bldc_no_reverse_emf_timer_ovf();
 
-} /* function atb_bldc_no_reverse_emf_timer_ovf */
+/**
+* Rotate motor with high speed.
+* Detect reverse EMF from sensor circut via
+*   analog comparator interruption.
+*/
+void atb_bldc_reverse_emf_ac_ovf();
 
 /**
 * Commutate motor phases.
 */
-void atb_bldc_commutation() {
+void atb_bldc_commutation();
 
-} /* function atb_bldc_commutation */
+/**
+* Shutdown all power on motor.
+*/
+void atb_bldc_stop_motor();
 
 /**
 * First run initialization. */
-void atb_bldc_initialize() {
+void atb_bldc_initialize();
 
-    commutation_phase = 0;
-    revemf_counter = 0;
-
-} /* function atb_bldc_init */
-
-#endif // __ATB_BLDC
+#endif /* __ATB_BLDC */
