@@ -2,7 +2,7 @@
 	AVR Toolbox
 	Control servo motors.
 
-	atb_servo_test.c
+	atb_servo_hal.h
 
     Copyright (C) 2016-2017 Sergei Ivanov <nsndrz@hotmail.org>
 */
@@ -22,33 +22,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "atb_servo.h"
+#ifndef __ATB_SERVO_HAL
+#define __ATB_SERVO_HAL
 
-#define SERVO_COMMON_PULSE_MIN  1
-#define SERVO_COMMON_PULSE_MAX  2
-#define SERVO_COMMON_ANGLE_MAX  180
+    #include <avr/interrupt.h>
+    #include <avr/io.h>
 
-ISR(TIMER0_OVF_vect) {
-    atb_servo_timer_interrupt();
-}
+	#define ATB_SERVO_DDR           DDRB
+    #define ATB_SERVO_PRT           PORTB
+    #define ATB_SERVO_QUANTITY      2
+    #define ATB_SERVO_PULSE_DELAY   50
 
-int main() {
+    #define SERVO_1_ID              0
+    #define SERVO_1_PIN             0
+    #define SERVO_2_ID              1
+    #define SERVO_2_PIN             1
 
-    atb_servo_setup(SERVO_1_ID, SERVO_1_PIN, SERVO_COMMON_PULSE_MIN, SERVO_COMMON_PULSE_MAX,
-                    SERVO_COMMON_ANGLE_MAX);
-    atb_servo_setup(SERVO_2_ID, SERVO_2_PIN, SERVO_COMMON_PULSE_MIN, SERVO_COMMON_PULSE_MAX,
-                    SERVO_COMMON_ANGLE_MAX);
+    void atb_servo_timer_setup() {};
+	void atb_servo_timer_prescaler_set_pulse() {};
+	void atb_servo_timer_prescaler_set_idle() {};
 
-    atb_servo_set_angle(SERVO_1_ID, 20);
-    atb_servo_set_angle(SERVO_1_ID, 160);
-
-    atb_servo_timer_setup();
-
-    sei();
-
-    while(1) {
-
-    } /* main loop */
-
-    return 0;
-} /* function main */
+#endif /* __ATB_SERVO_HAL */

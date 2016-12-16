@@ -25,33 +25,40 @@
 #ifndef __ATB_SERVO
 #define __ATB_SERVO
 
-	#include <avr/io.h>
-
-	#ifndef ATB_SERVO_PULSE_DELAY
-		#define ATB_SERVO_PULSE_DELAY	50
-		#warning "No ATB_SERVO_PULSE DELAY defined. Defalut value taken."
-	#endif /* ATB_SERVO_PULSE_DELAY */
+    #include "atb_servo_hal.h"
 
     #ifndef ATB_SERVO_DDR
-		#error "No ATB_SERVO_DDR defined."
-	#endif /* ATB_SERVO_PULSE_DELAY */
+		#error No ATB_SERVO_DDR defined.
+	#endif
 
-    #ifndef ATB_SERVO_PULSE_DELAY
-		#error "No ATB_SERVO_PRT defined."
-	#endif /* ATB_SERVO_PULSE_DELAY */
+	#ifndef ATB_SERVO_PRT
+		#error No ATB_SERVO_PRT defined.
+	#endif
+
+    #ifndef ATB_SERVO_QUANTITY
+        #error No ATB_SERVO_QUANTITY defined.
+    #endif
+
+	#ifndef ATB_SERVO_PULSE_PERIOD
+		#define ATB_SERVO_PULSE_PERIOD	20
+		#warning No ATB_SERVO_PULSE_PERIOD defined. Defalut value taken.
+	#endif
 
 	typedef struct {
-		uint8_t pulse_min, pulse_max, pulse_set;
-		uint8_t angle_min, angle_max, angle_ratio;
+		uint8_t pulse_min, pulse_max;
+		uint8_t angle_max;
+		uint16_t pulse_current;
 		uint8_t pin;
-	} atb_servo_motor;
+	} atb_servo_motor, *atb_servo_motor_ptr;
 
-	atb_servo_motor *atb_servo_motors;
+	atb_servo_motor atb_servo_motors[ATB_SERVO_QUANTITY];
+	atb_servo_motor_ptr atb_servo_pointers[ATB_SERVO_QUANTITY];
 
-	void atb_servo_add( uint8_t motor_pin,
-						uint8_t pulse_min, uint8_t pulse_max,
-						uint8_t angle_min, uint8_t angle_max ) {};
-	void atb_servo_set_angle( uint8_t motor_pin, uint8_t angle ) {};
-	void atb_servo_timer_interrupt() {};
+	void atb_servo_setup( uint8_t servo_id, uint8_t motor_pin,
+						  uint8_t pulse_min, uint8_t pulse_max,
+						  uint8_t angle_max );
+	void atb_servo_set_angle( uint8_t servo_id, uint8_t angle );
+	void atb_servo_timer_interrupt();
+	void atb_servo_reorder_times() {};
 
 #endif /* __ATB_SERVO */
