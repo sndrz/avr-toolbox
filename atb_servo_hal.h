@@ -31,15 +31,15 @@
 	#define ATB_SERVO_DDR           DDRB
     #define ATB_SERVO_PRT           PORTB
     #define ATB_SERVO_QUANTITY      2
-    #define ATB_SERVO_PULSE_DELAY   50
+    #define ATB_SERVO_PULSE_PERIOD  ATB_SERVO_MG90S_PULSE_PRIOD
 
     #define SERVO_1_ID              0
     #define SERVO_1_PIN             0
     #define SERVO_2_ID              1
     #define SERVO_2_PIN             1
 
-    void atb_servo_timer_setup() {};
-	void atb_servo_timer_prescaler_set_pulse() {};
-	void atb_servo_timer_prescaler_set_idle() {};
+    void atb_servo_timer_setup();
+	void atb_servo_timer_prescaler_set_pulse();
+	void atb_servo_timer_prescaler_set_idle();
 
 #endif /* __ATB_SERVO_HAL */

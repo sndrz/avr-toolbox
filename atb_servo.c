@@ -47,3 +47,7 @@ void atb_servo_set_angle( uint8_t servo_id, uint8_t angle ) {
 void atb_servo_timer_interrupt() {
 
 } /* function atb_servo_timer_interrupt */
+
+void atb_servo_reorder() {
+
+}

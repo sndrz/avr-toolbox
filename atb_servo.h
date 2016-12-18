@@ -25,6 +25,7 @@
 #ifndef __ATB_SERVO
 #define __ATB_SERVO
 
+    #include "atb_servo_motors.h"
     #include "atb_servo_hal.h"
 
     #ifndef ATB_SERVO_DDR
@@ -59,6 +60,6 @@
 						  uint8_t angle_max );
 	void atb_servo_set_angle( uint8_t servo_id, uint8_t angle );
 	void atb_servo_timer_interrupt();
-	void atb_servo_reorder_times() {};
+	void atb_servo_reorder();
 
 #endif /* __ATB_SERVO */

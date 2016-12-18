@@ -2,7 +2,7 @@
 	AVR Toolbox
 	Control servo motors.
 
-	atb_servo_test.c
+	atb_servo_motors.h
 
     Copyright (C) 2016-2017 Sergei Ivanov <nsndrz@hotmail.org>
 */
@@ -22,29 +22,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "atb_servo.h"
+#ifndef __ATB_SERVO_MOTORS
+#define __ATB_SERVO_MOTORS
 
-ISR(TIMER0_OVF_vect) {
-    atb_servo_timer_interrupt();
-}
+#define ATB_SERVO_MG90S_PULSE_MIN   1
+#define ATB_SERVO_MG90S_PULSE_MAX   2
+#define ATB_SERVO_MG90S_ANGLE_MAX   180
+#define ATB_SERVO_MG90S_PULSE_PRIOD 20
 
-int main() {
-
-    atb_servo_setup(SERVO_1_ID, SERVO_1_PIN, ATB_SERVO_MG90S_PULSE_MIN, ATB_SERVO_MG90S_PULSE_MAX,
-                    ATB_SERVO_MG90S_ANGLE_MAX);
-    atb_servo_setup(SERVO_2_ID, SERVO_2_PIN, ATB_SERVO_MG90S_PULSE_MIN, ATB_SERVO_MG90S_PULSE_MAX,
-                    ATB_SERVO_MG90S_ANGLE_MAX);
-
-    atb_servo_set_angle(SERVO_1_ID, 20);
-    atb_servo_set_angle(SERVO_1_ID, 160);
-
-    atb_servo_timer_setup();
-
-    sei();
-
-    while(1) {
-
-    } /* main loop */
-
-    return 0;
-} /* function main */
+#endif /* __ATB_SERVO_MOTORS */
