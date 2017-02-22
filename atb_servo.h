@@ -1,23 +1,18 @@
 /*
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 */
 
 /**
     @file
     @brief AVR Toolbox: Control servo motors. Headers.
     @author Sergei Ivanov <nsndrz@hotmail.org>
-    @copyright GNU GPL v.3
+    @copyright The MIT License (MIT)
 
     Library allows to control several variuos (user defined) servo motors.
 */
@@ -46,39 +41,40 @@
 	#endif
 
 	/**
-        A structure to keep settings of attached servo.
+        A structure to keep settings of an attached servo.
     */
 	typedef struct {
 		uint8_t pulse_min, pulse_max;   /**< Minimum and maximum servo pulse length for PWM. */
 		uint8_t angle_max;              /**< Maximum servo angle possible. */
+		uint16_t angleRatio;
 		uint16_t pulse_current;         /**< Current servo pulse length set. */
 		uint8_t pin;                    /**< Pin number, where motor is connected. */
-	} atb_servo_motor, *atb_servo_motor_ptr;
+	} ATB_ServoMotor, *ATB_ServoMotorPtr;
 
-	atb_servo_motor atb_servo_motors[ATB_SERVO_QUANTITY];       /**< An array for attached servo motors. */
-	atb_servo_motor_ptr atb_servo_pointers[ATB_SERVO_QUANTITY]; /**< Pointers to attached motors array items. */
+	ATB_ServoMotor ATB_servoMotors[ATB_SERVO_QUANTITY];      /**< An array for attached servo motors. */
+	ATB_ServoMotorPtr ATB_servoPointers[ATB_SERVO_QUANTITY]; /**< Pointers to attached motors array items. */
 
 	/**
         Configure and store parameters of a servo motor.
 
-        @param[in] servo_id A servo ID from atb_servo_motors variable.
-        @param[in] motor_pin A MCU I/O port pin number where servo control is connected.
-        @param[in] pulse_min A pulse delay to set servo at minimun angle (ms).
-        @param[in] pulse_max A pulse delay to set servo at maximum angle (ms).
-        @param[in] angle_max Maximum angle range that servo can provide (degree).
+        @param[in] _servoId A servo ID from atb_servo_motors variable.
+        @param[in] _motorPin A MCU I/O port pin number where servo control is connected.
+        @param[in] _pulseMin A pulse delay to set servo at minimun angle (ms).
+        @param[in] _pulseMax A pulse delay to set servo at maximum angle (ms).
+        @param[in] _angleMax Maximum angle range that servo can provide (degree).
 	*/
-	void atb_servo_setup( uint8_t servo_id, uint8_t motor_pin,
-						  uint8_t pulse_min, uint8_t pulse_max,
-						  uint8_t angle_max );
+	void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
+                         uint8_t _pulseMin, uint8_t _pulseMax,
+						 uint8_t _angleMax );
 
     /**
         Set angle (pulse length) for specified servo by degrees (from 0 - servo minimum
         to angle_max - servo maximum).
 
-        @param[in] servo_id A servo ID from atb_servo_motors variable.
-        @param[in] angle An angel to set (defgree).
+        @param[in] _servoId A servo ID from atb_servo_motors variable.
+        @param[in] _angle An angel to set (defgree).
     */
-	void atb_servo_set_angle( uint8_t servo_id, uint8_t angle );
+	void ATB_ServoSetAngle( uint8_t _servoId, uint8_t _angle );
 
 	/**
         A hook to be called from MCU timer interrupt.
@@ -92,6 +88,6 @@
         Reorder servo motors by longest pulse length to shortest for
         atb_servo_timer_interrupt() correct run.
 	*/
-	void atb_servo_reorder();
+	void ATB_ServoReorder();
 
 #endif /* __ATB_SERVO */

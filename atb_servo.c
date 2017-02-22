@@ -1,53 +1,71 @@
 /*
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 */
 
 /**
     @file
     @brief AVR Toolbox: Control servo motors. Code file.
     @author Sergei Ivanov <nsndrz@hotmail.org>
-    @copyright GNU GPL v.3
+    @copyright The MIT License (MIT)
 
     A code for a library header file.
 */
 
 #include "atb_servo.h"
 
-void atb_servo_setup( uint8_t servo_id, uint8_t motor_pin,
-                      uint8_t pulse_min, uint8_t pulse_max,
-                      uint8_t angle_max ) {
+void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
+                     uint8_t _pulseMin, uint8_t _pulseMax,
+                     uint8_t _angleMax ) {
 
-    atb_servo_motors[servo_id].pin = motor_pin;
-    atb_servo_motors[servo_id].pulse_min = pulse_min;
-    atb_servo_motors[servo_id].pulse_max = pulse_max;
-    atb_servo_motors[servo_id].angle_max = angle_max;
+    ATB_servoMotors[_servoId].pin = _motorPin;
+    ATB_servoMotors[_servoId].pulse_min = _pulseMin;
+    ATB_servoMotors[_servoId].pulse_max = _pulseMax;
+    ATB_servoMotors[_servoId].angle_max = _angleMax;
+    ATB_servoMotors[_servoId].angleRatio = (_pulseMax - _pulseMin) * 10000 / _angleMax;
 
-} /* function atb_servo_setup */
+    ATB_servoPointers[_servoId] = &ATB_servoMotors[_servoId];
 
-void atb_servo_set_angle( uint8_t servo_id, uint8_t angle ) {
+} /* ATB_ServoSetup */
 
-    uint16_t angle_ratio = (atb_servo_motors[servo_id].pulse_max - atb_servo_motors[servo_id].pulse_min) *
-                            10000 / atb_servo_motors[servo_id].angle_max;
-    atb_servo_motors[servo_id].pulse_current = ( angle * angle_ratio ) +
-                                                 atb_servo_motors[servo_id].pulse_min;
+void ATB_ServoSetAngle( uint8_t _servoId, uint8_t _angle ) {
 
-} /* function atb_servo_set_angle */
+    ATB_servoMotors[_servoId].pulse_current = ( _angle * ATB_servoMotors[_servoId].angleRatio ) +
+                                                ATB_servoMotors[_servoId].pulse_min;
+
+} /* ATB_ServoSetAngle */
 
 void atb_servo_timer_interrupt() {
 
 } /* function atb_servo_timer_interrupt */
 
-void atb_servo_reorder() {
+void ATB_ServoReorder() {
 
-}
+    if (ATB_SERVO_QUANTITY <= 1) { return; }
+
+    uint8_t _i;
+    uint16_t _pulse[2];
+    ATB_ServoMotorPtr _exchange;
+    ATB_ServoMotor _temp;
+
+    for (_i = 1; _i <= ATB_SERVO_QUANTITY-1; _i++) {
+
+        _temp = *ATB_servoPointers[_i-1];
+        _pulse[0] = _temp.pulse_current;
+        _temp = *ATB_servoPointers[_i];
+        _pulse[1] = _temp.pulse_current;
+
+        if ( _pulse[0] > _pulse[1] ) {
+            _exchange = ATB_servoPointers[_i-1];
+            ATB_servoPointers[_i-1] = ATB_servoPointers[_i];
+            ATB_servoPointers[_i] = _exchange;
+        }
+
+    } /*  for _i */
+
+} /* ATB_ServoReorder */
