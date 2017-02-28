@@ -35,14 +35,37 @@ void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
 
 void ATB_ServoSetAngle( uint8_t _servoId, uint8_t _angle ) {
 
-    ATB_servoMotors[_servoId].pulse_current = ( _angle * ATB_servoMotors[_servoId].angleRatio ) +
+    ATB_servoMotors[_servoId].pulse_new = ( _angle * ATB_servoMotors[_servoId].angleRatio ) +
                                                 ATB_servoMotors[_servoId].pulse_min;
 
 } /* ATB_ServoSetAngle */
 
-void atb_servo_timer_interrupt() {
+void ATB_ServoTimerInterrupt() {
 
-} /* function atb_servo_timer_interrupt */
+    uint8_t _pulse, _i;
+    _pulse = 0;
+
+    if ( !(ATB_servoStatus & _BV(ATB_SERVO_STATUS_LOCK)) ) { /* Lock bit is down. */
+
+        ATB_ServoReorder();
+        ATB_servoStatus |= _BV(ATB_SERVO_STATUS_LOCK);
+        _pulse = 1;
+
+    } else { /* Lock bit is up. */
+
+        for (_i = 0; _i <= ATB_SERVO_QUANTITY-1; _i++) {
+
+            if (ATB_servoPointers[_i] != 0) {
+
+
+
+            } /* if */
+
+        } /* for _i */
+
+    } /* if */
+
+} /* ATB_ServoTimerInterrupt */
 
 void ATB_ServoReorder() {
 
@@ -52,6 +75,10 @@ void ATB_ServoReorder() {
     uint16_t _pulse[2];
     ATB_ServoMotorPtr _exchange;
     ATB_ServoMotor _temp;
+
+    for (_i = 0; _i <= ATB_SERVO_QUANTITY-1; _i++) {
+        ATB_servoMotors[_i].pulse_current = ATB_servoMotors[_i].pulse_new;
+    }
 
     for (_i = 1; _i <= ATB_SERVO_QUANTITY-1; _i++) {
 
@@ -69,3 +96,19 @@ void ATB_ServoReorder() {
     } /*  for _i */
 
 } /* ATB_ServoReorder */
+
+void ATB_ServoTimerSetup() {
+
+    /* Set CTC (clear timer on compare match) mode. */
+    TCCR1A &= ~_BV(COM1A1) & ~_BV(COM1A0) & ~_BV(WGM11) & ~_BV(WGM10);
+    TCCR1B &= ~_BV(WGM13);
+    TCCR1B |= _BV(WGM12);
+
+    /* Set prescaler to 8. */
+    TCCR1B &= ~_BV(CS12) & ~_BV(CS10);
+    TCCR1B |= _BV(CS11);
+
+    /* Enable timer interruption. */
+    TIMSK |= _BV(OCIE1A);
+
+} /* ATB_ServoTimerSetup */

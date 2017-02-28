@@ -20,25 +20,32 @@
 #ifndef __ATB_SERVO
 #define __ATB_SERVO
 
+	#include <avr/interrupt.h>
+    #include <avr/io.h>
     #include "atb_servo_motors.h"
-    #include "atb_servo_hal.h"
 
-    #ifndef ATB_SERVO_DDR
-		#error No ATB_SERVO_DDR defined.
-	#endif
+    /**
+        PWM pulse period for servo motors.
 
-	#ifndef ATB_SERVO_PRT
-		#error No ATB_SERVO_PRT defined.
-	#endif
+        @todo Actually, different motors could have different PWM periods, so there is a need
+        in possibility to mix ones somehow.
+    */
+    #define ATB_SERVO_PULSE_PERIOD  ATB_SERVO_MG90S_PULSE_PRIOD
 
-    #ifndef ATB_SERVO_QUANTITY
-        #error No ATB_SERVO_QUANTITY defined.
-    #endif
+    #define ATB_SERVO_QUANTITY      2       /**< Quantity of connected servo motors. */
+	#define ATB_SERVO_DDR           DDRB    /**< MCU DDR there servo motors are connected. */
+    #define ATB_SERVO_PRT           PORTB   /**< MCU port there servo motors are connected. */
+    #define SERVO_1_PIN             0
+    #define SERVO_2_PIN             1
 
-	#ifndef ATB_SERVO_PULSE_PERIOD
-		#define ATB_SERVO_PULSE_PERIOD	20
-		#warning No ATB_SERVO_PULSE_PERIOD defined. Defalut value taken.
-	#endif
+    /**
+        Disable change servo angles flag.
+
+        It is necessary while generate pulses period active.
+    */
+    #define ATB_SERVO_STATUS_LOCK   0
+
+    uint8_t ATB_servoStatus;    /**< General control and status register. */
 
 	/**
         A structure to keep settings of an attached servo.
@@ -48,6 +55,7 @@
 		uint8_t angle_max;              /**< Maximum servo angle possible. */
 		uint16_t angleRatio;
 		uint16_t pulse_current;         /**< Current servo pulse length set. */
+		uint16_t pulse_new;             /**< New servo pulse length to update. */
 		uint8_t pin;                    /**< Pin number, where motor is connected. */
 	} ATB_ServoMotor, *ATB_ServoMotorPtr;
 
@@ -82,7 +90,9 @@
         In definition of timer counter it will set level of motors pins hi or low
         by each servo current angle pulse length setting.
     */
-	void atb_servo_timer_interrupt();
+	void ATB_ServoTimerInterrupt();
+
+    void ATB_ServoTimerSetup();
 
 	/**
         Reorder servo motors by longest pulse length to shortest for
