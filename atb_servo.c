@@ -19,6 +19,7 @@
 
 #include "atb_servo.h"
 
+/** @todo Add DDR & PORT initialization. */
 void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
                      uint8_t _pulseMin, uint8_t _pulseMax,
                      uint8_t _angleMax ) {
@@ -42,50 +43,45 @@ void ATB_ServoSetAngle( uint8_t _servoId, uint8_t _angle ) {
 
 void ATB_ServoTimerInterrupt() {
 
-    uint8_t _pulse, _i;
-    _pulse = 0;
+    uint8_t _done, _i;
 
-    if ( !(ATB_servoStatus & _BV(ATB_SERVO_STATUS_LOCK)) ) { /* Lock bit is down. */
+    _done = 1;
+    for (_i = 0; _i <= ATB_SERVO_QUANTITY-1; _i++) {
 
-        ATB_ServoReorder();
-        ATB_servoStatus |= _BV(ATB_SERVO_STATUS_LOCK);
-        _pulse = 1;
+        if (ATB_servoPointers[_i] != 0) {
 
-    } else { /* Lock bit is up. */
+            _done = 0;
+        } /* if */
 
-        for (_i = 0; _i <= ATB_SERVO_QUANTITY-1; _i++) {
-
-            if (ATB_servoPointers[_i] != 0) {
-
-
-
-            } /* if */
-
-        } /* for _i */
-
-    } /* if */
+    } /* fir _i */
 
 } /* ATB_ServoTimerInterrupt */
 
 void ATB_ServoReorder() {
 
+    /* Exit if one or less motor connected. */
     if (ATB_SERVO_QUANTITY <= 1) { return; }
+
+    /* Exit if motors are active. */
+    if (ATB_servoFlag != ATB_SERVO_FLAG_DOWN) { return; }
 
     uint8_t _i;
     uint16_t _pulse[2];
     ATB_ServoMotorPtr _exchange;
     ATB_ServoMotor _temp;
 
+    /* Apply pulses (angles) to motors. */
     for (_i = 0; _i <= ATB_SERVO_QUANTITY-1; _i++) {
-        ATB_servoMotors[_i].pulse_current = ATB_servoMotors[_i].pulse_new;
-    }
+        ATB_servoMotors[_i].pulse = ATB_servoMotors[_i].pulse_new;
+    } /* for _i */
 
+    /* Do reorder from short pulses to long. */
     for (_i = 1; _i <= ATB_SERVO_QUANTITY-1; _i++) {
 
         _temp = *ATB_servoPointers[_i-1];
-        _pulse[0] = _temp.pulse_current;
+        _pulse[0] = _temp.pulse;
         _temp = *ATB_servoPointers[_i];
-        _pulse[1] = _temp.pulse_current;
+        _pulse[1] = _temp.pulse;
 
         if ( _pulse[0] > _pulse[1] ) {
             _exchange = ATB_servoPointers[_i-1];
@@ -95,20 +91,49 @@ void ATB_ServoReorder() {
 
     } /*  for _i */
 
+    ATB_servoFlag = ATB_SERVO_FLAG_UP;
+
 } /* ATB_ServoReorder */
 
-void ATB_ServoTimerSetup() {
+void ATB_ServoAllStop() {
 
-    /* Set CTC (clear timer on compare match) mode. */
-    TCCR1A &= ~_BV(COM1A1) & ~_BV(COM1A0) & ~_BV(WGM11) & ~_BV(WGM10);
-    TCCR1B &= ~_BV(WGM13);
-    TCCR1B |= _BV(WGM12);
+    ATB_servoFlag = ATB_SERVO_FLAG_DOWN;
 
-    /* Set prescaler to 8. */
-    TCCR1B &= ~_BV(CS12) & ~_BV(CS10);
-    TCCR1B |= _BV(CS11);
+    /** @todo Set servos pins to low. */
 
-    /* Enable timer interruption. */
-    TIMSK |= _BV(OCIE1A);
+    /* Disable timer interruption. */
+    TIMSK &= ~_BV(OCIE1A);
 
-} /* ATB_ServoTimerSetup */
+} /* ATB_ServoAllStop */
+
+void ATB_ServoLoop() {
+
+    switch (ATB_servoFlag) {
+
+        case ATB_SERVO_FLAG_UP:
+
+            /* Set CTC (clear timer on compare match) mode. */
+            TCCR1A &= ~_BV(COM1A1) & ~_BV(COM1A0) & ~_BV(WGM11) & ~_BV(WGM10);
+            TCCR1B &= ~_BV(WGM13);
+            TCCR1B |= _BV(WGM12);
+
+            /* Set prescaler to 8. */
+            TCCR1B &= ~_BV(CS12) & ~_BV(CS10);
+            TCCR1B |= _BV(CS11);
+
+            /* Enable timer interruption. */
+            TIMSK |= _BV(OCIE1A);
+
+            ATB_servoFlag = ATB_SERVO_FLAG_PWM;
+
+            break; /* ATB_SERVO_FLAG_UP */
+
+        case ATB_SERVO_FLAG_PWM:
+
+
+
+            break; /* ATB_SERVO_FLAG_PWM */
+
+    } /* switch */
+
+} /* ATB_ServoLoop */

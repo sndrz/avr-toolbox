@@ -14,7 +14,7 @@
     @author Sergei Ivanov <nsndrz@hotmail.org>
     @copyright The MIT License (MIT)
 
-    Library allows to control several variuos (user defined) servo motors.
+    Library allows to control several various (user defined) servo motors.
 */
 
 #ifndef __ATB_SERVO
@@ -38,14 +38,11 @@
     #define SERVO_1_PIN             0
     #define SERVO_2_PIN             1
 
-    /**
-        Disable change servo angles flag.
-
-        It is necessary while generate pulses period active.
-    */
-    #define ATB_SERVO_STATUS_LOCK   0
-
-    uint8_t ATB_servoStatus;    /**< General control and status register. */
+    #define ATB_SERVO_FLAG_DOWN     0
+    #define ATB_SERVO_FLAG_UP       2
+    #define ATB_SERVO_FLAG_PWM      3
+    #define ATB_SERVO_FLAG_PAUSE    4
+    uint8_t ATB_servoFlag;              /**< Pulse generation flag machine counter. */
 
 	/**
         A structure to keep settings of an attached servo.
@@ -53,8 +50,8 @@
 	typedef struct {
 		uint8_t pulse_min, pulse_max;   /**< Minimum and maximum servo pulse length for PWM. */
 		uint8_t angle_max;              /**< Maximum servo angle possible. */
-		uint16_t angleRatio;
-		uint16_t pulse_current;         /**< Current servo pulse length set. */
+		uint16_t angleRatio;            /**< A ratio to convert angle (degrees) to pulse (ms). */
+		uint16_t pulse;                 /**< Current servo pulse length set. */
 		uint16_t pulse_new;             /**< New servo pulse length to update. */
 		uint8_t pin;                    /**< Pin number, where motor is connected. */
 	} ATB_ServoMotor, *ATB_ServoMotorPtr;
@@ -92,12 +89,17 @@
     */
 	void ATB_ServoTimerInterrupt();
 
-    void ATB_ServoTimerSetup();
-
 	/**
-        Reorder servo motors by longest pulse length to shortest for
+        Reorder servo motors by shortest pulse length to longest for
         atb_servo_timer_interrupt() correct run.
 	*/
 	void ATB_ServoReorder();
+
+	/**
+        Process current program state.
+    */
+	void ATB_ServoLoop();
+
+	void ATB_ServoAllStop();
 
 #endif /* __ATB_SERVO */

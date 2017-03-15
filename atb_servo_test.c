@@ -15,7 +15,7 @@
     @copyright The MIT License (MIT)
 
     A test program for servo motor functions.
-    The MCU is atmega8, frequency is 8 MHz.
+    A MCU is atmega8, frequency is 8 MHz.
 */
 
 #include "atb_servo.h"
@@ -29,7 +29,8 @@ ISR(TIMER1_COMPA_vect) {
 
 int main() {
 
-    ATB_ServoTimerSetup();
+    /* Enable global interruptions. */
+    sei();
 
     /* Add some servo motors. */
     ATB_ServoSetup(0, SERVO_1_PIN, ATB_SERVO_MG90S_PULSE_MIN, ATB_SERVO_MG90S_PULSE_MAX,
@@ -37,15 +38,16 @@ int main() {
     ATB_ServoSetup(1, SERVO_2_PIN, ATB_SERVO_MG90S_PULSE_MIN, ATB_SERVO_MG90S_PULSE_MAX,
                     ATB_SERVO_MG90S_ANGLE_MAX);
 
+    ATB_ServoAllStop();
+
     /* Set servo motors angles. */
     ATB_ServoSetAngle(0, 20);
     ATB_ServoSetAngle(1, 160);
 
-    /* Enable global interruptions. */
-    sei();
+    ATB_ServoReorder();
 
     while(1) {
-
+        ATB_ServoLoop();
     } /* main loop */
 
     return 0;
