@@ -10,24 +10,30 @@
 
 /**
     @file
-    @brief AVR Toolbox: HD44780 display driver. Test firmware.
+    @brief AVR Toolbox: 1-wire interface. Headers.
     @author Sergei Ivanov <nsndrz@hotmail.org>
     @copyright The MIT License (MIT)
 
-    A test program for HD44780 displays.
-    A MCU is atmega8, frequency is 8 MHz.
+    Software realization of Atmel 1-wire interface.
 */
 
-#include "atb_hd44780.h"
+#ifndef __ATB_1WIRE
+#define	__ATB_1WIRE
 
-int main() {
+    #include <util/delay.h>
+    #include <avr/io.h>
 
-    ATB_HD44780Init();
+    #define ATB_1WIRE_DDR   DDRB
+    #define ATB_1WIRE_PRT   PORTB
+    #define ATB_1WIRE_PIN   PINB
+    #define ATB_1WIRE_BIT   7
 
-    ATB_HD44780SetCursor(1, 2);
-    ATB_HD44780Print("Hello, ATmega!");
-    ATB_HD44780SetCursor(2, 3);
-    ATB_HD44780Print("AVR_Toolbox");
+    uint8_t ATB_1wireLineReset();
+    uint8_t ATB_1wireLineRead();
+    void ATB_1wireLineWriteHi();
+    void ATB_1wireLineWriteLo();
+    uint8_t ATB_1wireReadByte();
+    void ATB_1wireWriteByte(uint8_t _byt);
 
-    return 0;
-} /* function main */
+#endif /* __ATB_1WIRE */
+

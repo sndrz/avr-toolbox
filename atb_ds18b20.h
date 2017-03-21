@@ -10,24 +10,20 @@
 
 /**
     @file
-    @brief AVR Toolbox: HD44780 display driver. Test firmware.
+    @brief AVR Toolbox: DS18B20 temperature sensor. Headers.
     @author Sergei Ivanov <nsndrz@hotmail.org>
     @copyright The MIT License (MIT)
 
-    A test program for HD44780 displays.
-    A MCU is atmega8, frequency is 8 MHz.
+    Library allows to control DS18B20 temperature sensors via 1-wire interface.
 */
 
-#include "atb_hd44780.h"
+#ifndef __ATB_DS18B20
+#define	__ATB_DS18B20
 
-int main() {
+    #include "atb_1wire.h"
 
-    ATB_HD44780Init();
+    #define ATB_DS18B20_SENSORS_QUANTITY    2
 
-    ATB_HD44780SetCursor(1, 2);
-    ATB_HD44780Print("Hello, ATmega!");
-    ATB_HD44780SetCursor(2, 3);
-    ATB_HD44780Print("AVR_Toolbox");
+    void ATB_DS18B20Convert(uint8_t _id);
 
-    return 0;
-} /* function main */
+#endif /* __ATB_DS18B20 */

@@ -26,6 +26,9 @@
     #define ATB_HD44780_8BIT
     /* #define ATB_HD44780_4BIT */
 
+    #define ATB_HD44780_LANES   2
+    #define ATB_HD44780_DIGITS  16
+
     #define ATB_HD44780_DAT_PRT     PORTD
     #define ATB_HD44780_DAT_DDR     DDRD
     #define	ATB_HD44780_DAT_PIN	    PIND
@@ -40,6 +43,8 @@
     void ATB_HD44780Init();
     void ATB_HD44780WriteDat(uint8_t _dat);
     void ATB_HD44780WriteCmd(uint8_t _cmd);
-    void ATB_HD44780Write(uint8_t _dat, uint8_t _cmd);
+    void ATB_HD44780Write(uint8_t _byt, uint8_t _isCmd);
+    void ATB_HD44780Print(char _string[]);
+    void ATB_HD44780SetCursor(uint8_t _lin, uint8_t _pos);
 
 #endif /* __ATB_HD44780 */

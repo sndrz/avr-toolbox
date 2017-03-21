@@ -77,7 +77,7 @@ void ATB_HD44780WriteDat(uint8_t _dat) {
 	ATB_HD44780Write(_dat, 0);
 } /* ATB_HD44780WriteDat */
 
-void ATB_HD44780Write(uint8_t _dat, uint8_t _cmd) {
+void ATB_HD44780Write(uint8_t _byt, uint8_t _isCmd) {
 
 	/* 8 bit LCD connection mode. */
 	#ifdef ATB_HD44780_8BIT
@@ -88,14 +88,14 @@ void ATB_HD44780Write(uint8_t _dat, uint8_t _cmd) {
 		/* Prepare command bits. */
 		sbi(ATB_HD44780_CMD_PRT, ATB_HD44780_CMD_E);
 		cbi(ATB_HD44780_CMD_PRT, ATB_HD44780_CMD_RW);
-		if (_cmd == 1){
+		if (_isCmd == 1){
             cbi(ATB_HD44780_CMD_PRT, ATB_HD44780_CMD_RS);
         } else {
             sbi(ATB_HD44780_CMD_PRT, ATB_HD44780_CMD_RS);
         }
 
 		/* Prepare data. */
-		ATB_HD44780_DAT_PRT = _dat;
+		ATB_HD44780_DAT_PRT = _byt;
 		_delay_ms(10);
 
 		/* Commit transmission. */
@@ -105,14 +105,14 @@ void ATB_HD44780Write(uint8_t _dat, uint8_t _cmd) {
     /* 4 bit LCD connection mode. */
 	#else
 	#ifdef ATB_HD44780_4BIT
-
+        /** @todo Fix hardcoded data pins. */
 		/* Prepare port. */
 		ATB_HD44780_DAT_DDR = (ATB_HD44780_DAT_DDR & 0b11100001) | 0b00011110;
 
 		/* Prepare command bits. */
 		sbi(ATB_HD44780_CMD_PRT, ATB_HD44780_CMD_E);
 		cbi(ATB_HD44780_CMD_PRT, ATB_HD44780_CMD_RW);
-		if (_cmd == 1){
+		if (_isCmd == 1){
             cbi(ATB_HD44780_CMD_PRT, ATB_HD44780_CMD_RS);
         } else {
             sbi(ATB_HD44780_CMD_PRT, ATB_HD44780_CMD_RS);
@@ -120,7 +120,7 @@ void ATB_HD44780Write(uint8_t _dat, uint8_t _cmd) {
 
 		/* Prepare 1-st part of data byte. */
 		_delay_ms(100);
-		ATB_HD44780_DAT_PRT = (ATB_HD44780_DAT_PRT & 0b11100001) | ( (_dat >> 3) & 0b00011110 );
+		ATB_HD44780_DAT_PRT = (ATB_HD44780_DAT_PRT & 0b11100001) | ( (_byt >> 3) & 0b00011110 );
 
 		/* Commit transmission. */
 		cbi(ATB_HD44780_CMD_PRT, ATB_HD44780_CMD_E);
@@ -132,7 +132,7 @@ void ATB_HD44780Write(uint8_t _dat, uint8_t _cmd) {
 		_delay_ms(100);
 
 		/* Prepare 2-st part of data byte. */
-		ATB_HD44780_DAT_PRT = (ATB_HD44780_DAT_PRT & 0b11100001) | ( (_dat << 1) & 0b00011110);
+		ATB_HD44780_DAT_PRT = (ATB_HD44780_DAT_PRT & 0b11100001) | ( (_byt << 1) & 0b00011110);
 
 		/* Commit transmission. */
 		cbi(ATB_HD44780_CMD_PRT, ATB_HD44780_CMD_E);
@@ -142,3 +142,25 @@ void ATB_HD44780Write(uint8_t _dat, uint8_t _cmd) {
 	#endif /* ATB_HD44780_8BIT */
 
 } /* ATB_HD44780Write */
+
+void ATB_HD44780Print(char _string[]) {
+
+    uint8_t _i;
+    for (_i = 0; _i <= strlen(_string); _i++) {
+        ATB_HD44780WriteDat(_string[_i]);
+    } /* for _i */
+
+} /* ATB_HD44780Print */
+
+void ATB_HD44780SetCursor(uint8_t _lin, uint8_t _pos) {
+
+    uint8_t _addr;
+
+    if (_lin == 1) { _addr = 0x00; }
+    else if (_lin == 2) { _addr = 0x40; }
+    _addr += _pos;
+
+    sbi(_addr, 7);
+    ATB_HD44780WriteCmd(_addr);
+
+} /* ATB_HD44780SetCursor */
