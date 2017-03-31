@@ -22,6 +22,9 @@
 
     #include "atb_1wire.h"
 
+    #define ATB_DS18B20_MATCH_ROM   0x55
+    #define ATB_DS18B20_CONVERT     0x44
+
     #define ATB_DS18B20_SENSORS_QUANTITY    2
 
     void ATB_DS18B20Convert(uint8_t _id);
