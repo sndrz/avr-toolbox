@@ -19,7 +19,6 @@
 
 #include "atb_servo.h"
 
-/** @todo Add DDR & PORT initialization. */
 void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
                      uint8_t _pulseMin, uint8_t _pulseMax,
                      uint8_t _angleMax ) {
@@ -31,6 +30,9 @@ void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
     ATB_servoMotors[_servoId].angleRatio = (_pulseMax - _pulseMin) * 10000 / _angleMax;
 
     ATB_servoPointers[_servoId] = &ATB_servoMotors[_servoId];
+
+    ATB_SERVO_DDR |= _BV(_motorPin);
+    ATB_SERVO_PRT &= ~_BV(_motorPin);
 
 } /* ATB_ServoSetup */
 
@@ -59,8 +61,8 @@ void ATB_ServoTimerInterrupt() {
 
 void ATB_ServoReorder() {
 
-    /* Exit if one or less motor connected. */
-    if (ATB_SERVO_QUANTITY <= 1) { return; }
+    /* Exit if less than two motors connected. */
+    if (ATB_SERVO_QUANTITY < 2) { return; }
 
     /* Exit if motors are active. */
     if (ATB_servoFlag != ATB_SERVO_FLAG_DOWN) { return; }
@@ -99,7 +101,10 @@ void ATB_ServoAllStop() {
 
     ATB_servoFlag = ATB_SERVO_FLAG_DOWN;
 
-    /** @todo Set servos pins to low. */
+    uint8_t _i;
+    for (_i = 1; _i <= ATB_SERVO_QUANTITY-1; _i++) {
+        ATB_SERVO_PRT &= ~_BV(ATB_servoMotors[_i].pin);
+    } /* for */
 
     /* Disable timer interruption. */
     TIMSK &= ~_BV(OCIE1A);

@@ -20,6 +20,8 @@
 
 #include "atb_servo.h"
 
+#define F_CPU   8000000UL
+
 /**
     A compare vector for timer interruption.
 */
@@ -29,21 +31,25 @@ ISR(TIMER1_COMPA_vect) {
 
 int main() {
 
-    /* Enable global interruptions. */
-    sei();
+    /* Set up MCU timer. */
+    TCCR0 &= ~_BV(CS02) & ~_BV(CS01);
+    TCCR0 |= _BV(CS00);
+
+    TIMSK |= _BV(TOIE0);
 
     /* Add some servo motors. */
     ATB_ServoSetup(0, SERVO_1_PIN, ATB_SERVO_MG90S_PULSE_MIN, ATB_SERVO_MG90S_PULSE_MAX,
                     ATB_SERVO_MG90S_ANGLE_MAX);
     ATB_ServoSetup(1, SERVO_2_PIN, ATB_SERVO_MG90S_PULSE_MIN, ATB_SERVO_MG90S_PULSE_MAX,
                     ATB_SERVO_MG90S_ANGLE_MAX);
-
     ATB_ServoAllStop();
+
+    /* Enable global interruptions. */
+    sei();
 
     /* Set servo motors angles. */
     ATB_ServoSetAngle(0, 20);
     ATB_ServoSetAngle(1, 160);
-
     ATB_ServoReorder();
 
     while(1) {
