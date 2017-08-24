@@ -21,6 +21,11 @@
 #include "atb_ds18b20.h"
 #include "atb_hd44780.h"
 
+
+#define SENSOR_ONE  0
+#define SENSOR_TWO  1
+
+
 int main() {
 
     ATB_HD44780Init();
@@ -30,16 +35,14 @@ int main() {
     ATB_HD44780SetCursor(2, 1);
     ATB_HD44780Print("AVR-Toolbox");
 
+    ATB_ds18b20Address[SENSOR_ONE] = 0xB8C530;
+    ATB_ds18b20Address[SENSOR_TWO] = 0xB8C531;
+
     while (1) {
 
-        _delay_ms(1000);
-        ATB_1wireLineReset();
-        ATB_1wireWriteByte(ATB_DS18B20_MATCH_ROM);
-        ATB_1wireWriteByte(0x30);
-        ATB_1wireWriteByte(0xC5);
-        ATB_1wireWriteByte(0xB8);
-        ATB_1wireWriteByte(ATB_DS18B20_CONVERT);
+        ATB_DS18B20Convert(SENSOR_ONE);
         _delay_ms(2000);
+        ATB_DS18B20ReadScratch(SENSOR_ONE);
 
     } /* while */
 

@@ -33,7 +33,7 @@ uint8_t ATB_1wireLineReset() {
         return 0;
     } else {
         return 1;
-    } /* if */
+    }
 
     _delay_ms(30);
 
@@ -51,7 +51,7 @@ uint8_t ATB_1wireLineRead() {
         return 1;
     } else {
         return 0;
-    } /* if */
+    }
 
     _delay_ms(30);
 
@@ -76,7 +76,7 @@ void ATB_1wireLineWriteLo() {
 } /* ATB_1wireLineWriteLo */
 
 uint8_t ATB_1wireReadByte() {
-
+    return 0;
 } /* ATB_1wireReadByte */
 
 void ATB_1wireWriteByte(uint8_t _byt) {
@@ -89,7 +89,6 @@ void ATB_1wireWriteByte(uint8_t _byt) {
         } else {
             ATB_1wireLineWriteLo();
         }
-
     } /* for _i */
 
 } /* ATB_1wireWriteByte */

@@ -19,6 +19,7 @@
 
 
 #include "atb_servo.h"
+#include "atb_macros.h"
 
 
 void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
@@ -33,8 +34,8 @@ void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
 
     ATB_servoPointers[_servoId] = &ATB_servoMotors[_servoId];
 
-    ATB_SERVO_DDR |= _BV(_motorPin);
-    ATB_SERVO_PRT &= ~_BV(_motorPin);
+    sbi(ATB_SERVO_DDR, _motorPin);
+    cbi(ATB_SERVO_PRT, _motorPin);
 
 } /* ATB_ServoSetup */
 
@@ -77,7 +78,7 @@ void ATB_ServoSetTimer() {
 
         uint8_t _i;
         for (_i = 0; _i <= ATB_SERVO_QUANTITY-1; _i++) {
-            ATB_SERVO_PRT |= _BV(ATB_servoMotors[_i].pin);
+            sbi(ATB_SERVO_PRT, ATB_servoMotors[_i].pin);
         } /* for */
 
     } else if (ATB_servoPWMMotorCounter < ATB_SERVO_QUANTITY) {
@@ -105,7 +106,7 @@ void ATB_ServoSetTimer() {
 void ATB_ServoApply() {
 
     /* Disable timer interruption. */
-    TIMSK &= ~_BV(TOIE0);
+    cbi(TIMSK, TOIE0);
 
     uint8_t _i, _j;
     ATB_ServoMotorPtr _exchange;
@@ -133,7 +134,7 @@ void ATB_ServoApply() {
     ATB_ServoSetTimer();
 
     /* Enable timer interruption. */
-    TIMSK |= _BV(TOIE0);
+    sbi(TIMSK, TOIE0);
 
 } /* ATB_ServoApply */
 
@@ -141,11 +142,11 @@ void ATB_ServoApply() {
 void ATB_ServoAllStop() {
 
     /* Disable timer interruption. */
-    TIMSK &= ~_BV(TOIE0);
+    cbi(TIMSK, TOIE0);
 
     uint8_t _i;
     for (_i = 0; _i <= ATB_SERVO_QUANTITY-1; _i++) {
-        ATB_SERVO_PRT &= ~_BV(ATB_servoMotors[_i].pin);
+        cbi(ATB_SERVO_PRT, ATB_servoMotors[_i].pin);
     } /* for */
 
 } /* ATB_ServoAllStop */

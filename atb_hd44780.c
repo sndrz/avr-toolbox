@@ -43,14 +43,13 @@ void ATB_HD44780Init() {
 	#endif
 	#endif
 
-
 	ATB_HD44780WriteCmd(0b00000001);	/* Clear display. */
 	ATB_HD44780WriteCmd(0b00000110);	/* Forward / No scrolling. */
 	ATB_HD44780WriteCmd(0b00001100);	/* Display ON. */
 
 } /* ATB_HD44780Init */
 
-void ATB_HD44780Wait() {
+void _ATB_HD44780Wait() {
 
 	uint8_t _pin = 0x00;
 
@@ -67,17 +66,17 @@ void ATB_HD44780Wait() {
 		sbi(ATB_HD44780_CMD_PRT, ATB_HD44780_CMD_E);
 	}
 
-} /* ATB_HD44780Wait */
+} /* _ATB_HD44780Wait */
 
 void ATB_HD44780WriteCmd(uint8_t _cmd) {
-	ATB_HD44780Write(_cmd, 1);
+	_ATB_HD44780Write(_cmd, 1);
 } /* ATB_HD44780WriteCmd */
 
 void ATB_HD44780WriteDat(uint8_t _dat) {
-	ATB_HD44780Write(_dat, 0);
+	_ATB_HD44780Write(_dat, 0);
 } /* ATB_HD44780WriteDat */
 
-void ATB_HD44780Write(uint8_t _byt, uint8_t _isCmd) {
+void _ATB_HD44780Write(uint8_t _byt, uint8_t _isCmd) {
 
 	/* 8 bit LCD connection mode. */
 	#ifdef ATB_HD44780_8BIT
@@ -100,7 +99,7 @@ void ATB_HD44780Write(uint8_t _byt, uint8_t _isCmd) {
 
 		/* Commit transmission. */
 		cbi(ATB_HD44780_CMD_PRT, ATB_HD44780_CMD_E);
-		ATB_HD44780Wait();
+		_ATB_HD44780Wait();
 
     /* 4 bit LCD connection mode. */
 	#else
@@ -141,7 +140,7 @@ void ATB_HD44780Write(uint8_t _byt, uint8_t _isCmd) {
 	#endif /* ATB_HD44780_4BIT */
 	#endif /* ATB_HD44780_8BIT */
 
-} /* ATB_HD44780Write */
+} /* _ATB_HD44780Write */
 
 void ATB_HD44780Print(char _string[]) {
 
@@ -155,9 +154,9 @@ void ATB_HD44780Print(char _string[]) {
 void ATB_HD44780SetCursor(uint8_t _lin, uint8_t _pos) {
 
     uint8_t _addr;
+    _addr = 0x00; /* Display has one line. */
 
-    if (_lin == 1) { _addr = 0x00; }
-    else if (_lin == 2) { _addr = 0x40; }
+    if (_lin == 2) { _addr = 0x40; }
     _addr += _pos;
 
     sbi(_addr, 7);

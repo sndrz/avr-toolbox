@@ -10,41 +10,32 @@
 
 /**
     @file
-    @brief AVR Toolbox: 1-wire interface. Headers.
+    @brief AVR Toolbox: DS18B20 temperature sensor. Code file.
     @author Sergei Ivanov <nsndrz@hotmail.org>
     @copyright The MIT License (MIT)
-    @version 0.0.1
 
-    Software realization of Atmel 1-wire interface.
+    A code for a library header file.
 */
 
-#ifndef __ATB_1WIRE
-#define	__ATB_1WIRE
+#include "atb_ds18b20.h"
+
+/** @todo Replace hardcoded address with ATB_ds18b20Adress[_id]. */
+void ATB_DS18B20Convert(uint8_t _id) {
+
+    ATB_1wireLineReset();
+    ATB_1wireWriteByte(ATB_DS18B20_MATCH_ROM);
+    ATB_1wireWriteByte(0x30);
+    ATB_1wireWriteByte(0xC5);
+    ATB_1wireWriteByte(0xB8);
+    ATB_1wireWriteByte(ATB_DS18B20_CONVERT);
+
+} /* ATB_DS18B20Convert */
 
 
-#include <util/delay.h>
-#include <avr/io.h>
+void ATB_DS18B20ReadScratch(uint8_t _id) {
 
+} /* ATB_DS18B20ReadScratch */
 
-/* Defines and variables */
+void ATB_DS18B20ScanAddress() {
 
-
-#define ATB_1WIRE_DDR   DDRB
-#define ATB_1WIRE_PRT   PORTB
-#define ATB_1WIRE_PIN   PINB
-#define ATB_1WIRE_BIT   7
-
-
-/* Functions */
-
-
-uint8_t ATB_1wireLineReset();
-uint8_t ATB_1wireLineRead();
-void ATB_1wireLineWriteHi();
-void ATB_1wireLineWriteLo();
-uint8_t ATB_1wireReadByte();
-void ATB_1wireWriteByte(uint8_t _byt);
-
-
-#endif /* __ATB_1WIRE */
-
+} /* ATB_DS18B20ScanAddress */
