@@ -13,6 +13,7 @@
     @brief AVR Toolbox: Control servo motors. Headers.
     @author Sergei Ivanov <nsndrz@hotmail.org>
     @copyright The MIT License (MIT)
+    @version 0.1.0
 
     Library allows to control several various (user defined) servo motors.
 */
