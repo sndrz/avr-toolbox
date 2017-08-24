@@ -17,7 +17,9 @@
     A code for a library header file.
 */
 
+
 #include "atb_servo.h"
+
 
 void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
                      uint8_t _pulseMin, uint8_t _pulseMax,
@@ -27,7 +29,7 @@ void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
     ATB_servoMotors[_servoId].pulse_min = _pulseMin;
     ATB_servoMotors[_servoId].pulse_max = _pulseMax;
     ATB_servoMotors[_servoId].angle_max = _angleMax;
-    ATB_servoMotors[_servoId].angleRatio = (_pulseMax - _pulseMin) * 10000 / _angleMax;
+    ATB_servoMotors[_servoId].angleRatio = (_pulseMax - _pulseMin) * 1000 * 10 / _angleMax;
 
     ATB_servoPointers[_servoId] = &ATB_servoMotors[_servoId];
 
@@ -36,109 +38,114 @@ void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
 
 } /* ATB_ServoSetup */
 
+
 void ATB_ServoSetAngle( uint8_t _servoId, uint8_t _angle ) {
 
     ATB_servoMotors[_servoId].pulse_new = ( _angle * ATB_servoMotors[_servoId].angleRatio ) +
-                                                ATB_servoMotors[_servoId].pulse_min;
+                                          ( ATB_servoMotors[_servoId].pulse_min * 1000 * 10 );
 
 } /* ATB_ServoSetAngle */
 
+
 void ATB_ServoTimerInterrupt() {
 
-    uint8_t _done, _i;
+    if (ATB_servoPWMTimerCounter == 0) {
 
-    _done = 1;
-    for (_i = 0; _i <= ATB_SERVO_QUANTITY-1; _i++) {
+        if (ATB_servoPWMMotorCounter < ATB_SERVO_QUANTITY) {
+            ATB_SERVO_PRT &= ~_BV((*ATB_servoPointers[ATB_servoPWMMotorCounter]).pin);
+            ATB_servoPWMMotorCounter++;
+        } else {
+            ATB_servoPWMMotorCounter = 0;
+            PORTB ^= _BV(3);
+        }
+        ATB_ServoSetTimer();
 
-        if (ATB_servoPointers[_i] != 0) {
-
-            _done = 0;
-        } /* if */
-
-    } /* fir _i */
+    } else {
+        ATB_servoPWMTimerCounter--;
+    }
 
 } /* ATB_ServoTimerInterrupt */
 
-void ATB_ServoReorder() {
 
-    /* Exit if less than two motors connected. */
-    if (ATB_SERVO_QUANTITY < 2) { return; }
+void ATB_ServoSetTimer() {
 
-    /* Exit if motors are active. */
-    if (ATB_servoFlag != ATB_SERVO_FLAG_DOWN) { return; }
+    uint32_t _temp;
+    _temp = 0;
 
-    uint8_t _i;
-    uint16_t _pulse[2];
+    if (ATB_servoPWMMotorCounter == 0) {
+
+        _temp = (*ATB_servoPointers[0]).pulse;
+
+        uint8_t _i;
+        for (_i = 0; _i <= ATB_SERVO_QUANTITY-1; _i++) {
+            ATB_SERVO_PRT |= _BV(ATB_servoMotors[_i].pin);
+        } /* for */
+
+    } else if (ATB_servoPWMMotorCounter < ATB_SERVO_QUANTITY) {
+
+        _temp = (*ATB_servoPointers[ATB_servoPWMMotorCounter]).pulse -
+                           (*ATB_servoPointers[ATB_servoPWMMotorCounter-1]).pulse;
+
+    } else if (ATB_servoPWMMotorCounter == ATB_SERVO_QUANTITY) {
+
+        _temp = (ATB_SERVO_PULSE_PERIOD * 1000L * 10L) -
+                (*ATB_servoPointers[ATB_SERVO_QUANTITY-1]).pulse;
+    }
+
+    /**
+        @todo Allow flexible F_CPU setting (it's hardcoded 8MHz for now).
+        So minimum timer step is 8000000 / 256 / 256 = 122,07 us with
+        prescaler = 256. That settings are good with 8-bit counter variable.
+    */
+    ATB_servoPWMTimerCounter = _temp / 1221;
+
+} /* ATB_ServoSetTimer */
+
+
+void ATB_ServoApply() {
+
+    /* Disable timer interruption. */
+    TIMSK &= ~_BV(TOIE0);
+
+    uint8_t _i, _j;
     ATB_ServoMotorPtr _exchange;
-    ATB_ServoMotor _temp;
 
-    /* Apply pulses (angles) to motors. */
+    /* Apply new pulses length (angles) to motors. */
     for (_i = 0; _i <= ATB_SERVO_QUANTITY-1; _i++) {
         ATB_servoMotors[_i].pulse = ATB_servoMotors[_i].pulse_new;
     } /* for _i */
 
     /* Do reorder from short pulses to long. */
-    for (_i = 1; _i <= ATB_SERVO_QUANTITY-1; _i++) {
+    /** @todo Change "bubble" sorting method for something more. */
+    _j = ATB_SERVO_QUANTITY;
+    while (_j > 1) {
+        for (_i = 0; _i <= _j-2; _i++) {
+            if ( (*ATB_servoPointers[_i]).pulse > (*ATB_servoPointers[_i+1]).pulse ) {
+                _exchange = ATB_servoPointers[_i];
+                ATB_servoPointers[_i] = ATB_servoPointers[_i+1];
+                ATB_servoPointers[_i+1] = _exchange;
+            } /* if */
+        } /*  for _i */
+        _j--;
+    } /* while */
 
-        _temp = *ATB_servoPointers[_i-1];
-        _pulse[0] = _temp.pulse;
-        _temp = *ATB_servoPointers[_i];
-        _pulse[1] = _temp.pulse;
+    ATB_servoPWMMotorCounter = 0;
+    ATB_ServoSetTimer();
 
-        if ( _pulse[0] > _pulse[1] ) {
-            _exchange = ATB_servoPointers[_i-1];
-            ATB_servoPointers[_i-1] = ATB_servoPointers[_i];
-            ATB_servoPointers[_i] = _exchange;
-        }
+    /* Enable timer interruption. */
+    TIMSK |= _BV(TOIE0);
 
-    } /*  for _i */
+} /* ATB_ServoApply */
 
-    ATB_servoFlag = ATB_SERVO_FLAG_UP;
-
-} /* ATB_ServoReorder */
 
 void ATB_ServoAllStop() {
 
-    ATB_servoFlag = ATB_SERVO_FLAG_DOWN;
+    /* Disable timer interruption. */
+    TIMSK &= ~_BV(TOIE0);
 
     uint8_t _i;
-    for (_i = 1; _i <= ATB_SERVO_QUANTITY-1; _i++) {
+    for (_i = 0; _i <= ATB_SERVO_QUANTITY-1; _i++) {
         ATB_SERVO_PRT &= ~_BV(ATB_servoMotors[_i].pin);
     } /* for */
 
-    /* Disable timer interruption. */
-    TIMSK &= ~_BV(OCIE1A);
-
 } /* ATB_ServoAllStop */
-
-void ATB_ServoLoop() {
-
-    switch (ATB_servoFlag) {
-
-        case ATB_SERVO_FLAG_UP:
-
-            /* Set CTC (clear timer on compare match) mode. */
-            TCCR1A &= ~_BV(COM1A1) & ~_BV(COM1A0) & ~_BV(WGM11) & ~_BV(WGM10);
-            TCCR1B &= ~_BV(WGM13);
-            TCCR1B |= _BV(WGM12);
-
-            /* Set prescaler to 8. */
-            TCCR1B &= ~_BV(CS12) & ~_BV(CS10);
-            TCCR1B |= _BV(CS11);
-
-            /* Enable timer interruption. */
-            TIMSK |= _BV(OCIE1A);
-
-            ATB_servoFlag = ATB_SERVO_FLAG_PWM;
-
-            break; /* ATB_SERVO_FLAG_UP */
-
-        case ATB_SERVO_FLAG_PWM:
-
-
-
-            break; /* ATB_SERVO_FLAG_PWM */
-
-    } /* switch */
-
-} /* ATB_ServoLoop */
