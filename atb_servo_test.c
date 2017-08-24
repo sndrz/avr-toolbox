@@ -30,10 +30,10 @@ ISR(TIMER0_OVF_vect) {
 }
 
 int main() {
-    DDRB |= _BV(3);
-    /* Set up MCU timer prescaler to 256. */
-    TCCR0 &= ~_BV(CS01) & ~_BV(CS00);
-    TCCR0 |= _BV(CS02);
+
+    /* Set up MCU timer prescaler to 8. */
+    TCCR0 &= ~_BV(CS02) & ~_BV(CS00);
+    TCCR0 |= _BV(CS01);
 
     /* Enable global interruptions. */
     sei();
@@ -48,9 +48,9 @@ int main() {
     ATB_ServoAllStop();
 
     /* Set servo motors angles. */
-    ATB_ServoSetAngle(0, 90);
-    ATB_ServoSetAngle(1, 45);
-    ATB_ServoSetAngle(2, 90);
+    ATB_ServoSetAngle(0, 160);
+    ATB_ServoSetAngle(1, 0);
+    ATB_ServoSetAngle(2, 80);
     ATB_ServoApply();
 
     while(1) {

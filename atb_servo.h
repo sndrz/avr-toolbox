@@ -49,12 +49,24 @@
 
 /** A structure to keep settings of an attached servo. */
 typedef struct {
-    uint8_t pulse_min, pulse_max;   /**< Minimum and maximum servo pulse length for PWM. */
-    uint8_t angle_max;              /**< Maximum servo angle possible. */
-    uint16_t angleRatio;            /**< A ratio to convert angle (degrees) to pulse (us). */
-    uint16_t pulse;                 /**< Current servo pulse length set. */
-    uint16_t pulse_new;             /**< New servo pulse length to update. */
-    uint8_t pin;                    /**< Pin number, where motor is connected. */
+
+    /** Pin number, where motor is connected. */
+    uint8_t pin;
+
+    /** Minimum and maximum servo pulse length for PWM (in milliseconds). */
+    uint8_t pulse_min, pulse_max;
+
+    /** Maximum servo angle range (in degrees). */
+    uint8_t angle_max;
+
+    /** A ratio to convert angle to pulse (in microseconds). */
+    uint16_t angleRatio;
+
+    /** Current servo pulse length (in microseconds). */
+    uint16_t pulse;
+
+    /** New servo pulse length (will set after ATB_ServoApply(), in microseconds). */
+    uint16_t pulse_new;
 } ATB_ServoMotor, *ATB_ServoMotorPtr;
 
 /** An array for attached servo motors. */
@@ -80,8 +92,6 @@ uint16_t ATB_servoPWMTimerCounter;
     @param[in] _pulseMin A pulse delay to set servo at minimun angle (ms).
     @param[in] _pulseMax A pulse delay to set servo at maximum angle (ms).
     @param[in] _angleMax Maximum angle range that servo can provide (degree).
-    @note pulse_min, pulse_max and angle_ratio variables store values
-    in microseconds (us) multipled by 10 to save a fractional part of time period.
 */
 void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
                     uint8_t _pulseMin, uint8_t _pulseMax,
@@ -92,7 +102,11 @@ void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
     to angle_max - servo maximum).
 
     @param[in] _servoId A servo ID from atb_servo_motors variable.
-    @param[in] _angle An angel to set (defgree).
+    @param[in] _angle An absolute angle value to set (in degrees).
+    @note Usually motors have a central position at zero degree and a half
+    of range to negative side, half to positive. It is not took into account:
+    angle range should be set from 0 (the most left position) to angle_max
+    (most right position), so central (zero) position will be about angle_max / 2.
 */
 void ATB_ServoSetAngle( uint8_t _servoId, uint8_t _angle );
 

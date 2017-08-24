@@ -22,7 +22,7 @@
 
     #define ATB_SERVO_MG90S_PULSE_MIN   1
     #define ATB_SERVO_MG90S_PULSE_MAX   2
-    #define ATB_SERVO_MG90S_ANGLE_MAX   180
+    #define ATB_SERVO_MG90S_ANGLE_MAX   160
     #define ATB_SERVO_MG90S_PULSE_PRIOD 20
 
 #endif /* __ATB_SERVO_MOTORS */

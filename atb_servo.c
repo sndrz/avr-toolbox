@@ -29,7 +29,7 @@ void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
     ATB_servoMotors[_servoId].pulse_min = _pulseMin;
     ATB_servoMotors[_servoId].pulse_max = _pulseMax;
     ATB_servoMotors[_servoId].angle_max = _angleMax;
-    ATB_servoMotors[_servoId].angleRatio = (_pulseMax - _pulseMin) * 1000 * 10 / _angleMax;
+    ATB_servoMotors[_servoId].angleRatio = (_pulseMax - _pulseMin) * 1000 / _angleMax;
 
     ATB_servoPointers[_servoId] = &ATB_servoMotors[_servoId];
 
@@ -42,7 +42,7 @@ void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,
 void ATB_ServoSetAngle( uint8_t _servoId, uint8_t _angle ) {
 
     ATB_servoMotors[_servoId].pulse_new = ( _angle * ATB_servoMotors[_servoId].angleRatio ) +
-                                          ( ATB_servoMotors[_servoId].pulse_min * 1000 * 10 );
+                                          ( ATB_servoMotors[_servoId].pulse_min * 1000 );
 
 } /* ATB_ServoSetAngle */
 
@@ -56,7 +56,6 @@ void ATB_ServoTimerInterrupt() {
             ATB_servoPWMMotorCounter++;
         } else {
             ATB_servoPWMMotorCounter = 0;
-            PORTB ^= _BV(3);
         }
         ATB_ServoSetTimer();
 
@@ -88,16 +87,17 @@ void ATB_ServoSetTimer() {
 
     } else if (ATB_servoPWMMotorCounter == ATB_SERVO_QUANTITY) {
 
-        _temp = (ATB_SERVO_PULSE_PERIOD * 1000L * 10L) -
+        _temp = (ATB_SERVO_PULSE_PERIOD * 1000L ) -
                 (*ATB_servoPointers[ATB_SERVO_QUANTITY-1]).pulse;
     }
 
     /**
         @todo Allow flexible F_CPU setting (it's hardcoded 8MHz for now).
-        So minimum timer step is 8000000 / 256 / 256 = 122,07 us with
-        prescaler = 256. That settings are good with 8-bit counter variable.
+        So minimum timer step is 1/8000000 * 256 * PRSC = 0,032 ms * PRSC.
+        That settings are good with 8-bit counter variable and PRSC = 8.
+        So one timer tick is 0,032 * 8 = 0,256 ms = 256 us.
     */
-    ATB_servoPWMTimerCounter = _temp / 1221;
+    ATB_servoPWMTimerCounter = _temp / 256;
 
 } /* ATB_ServoSetTimer */
 
