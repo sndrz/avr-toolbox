@@ -19,7 +19,7 @@
 
 
 #include "atb_servo.h"
-#include "atb_macros.h"
+#include "atb_math.h"
 
 
 void ATB_ServoSetup( uint8_t _servoId, uint8_t _motorPin,

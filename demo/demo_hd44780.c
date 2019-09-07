@@ -18,7 +18,7 @@
     A MCU is atmega8, frequency is 8 MHz.
 */
 
-#include "atb_hd44780.h"
+#include "../atb/atb_hd44780.h"
 
 int main() {
 

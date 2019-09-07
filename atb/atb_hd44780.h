@@ -18,37 +18,18 @@
     Library allows to control LCD displays with HD44780 controller.
 */
 
+/*  Configuration note
+    DO NOT FORGET to edit atb_hd44780_config.h.
+*/
+
 #ifndef __ATB_HD44780
 #define	__ATB_HD44780
 
-
-#include <util/delay.h>
 #include <avr/io.h>
 
-
-/* Defines and variables */
-
-
-/** Display connection mode: via 8 or 4 data wires. */
-#define ATB_HD44780_8BIT
-/* #define ATB_HD44780_4BIT */
-
-#define ATB_HD44780_LANES   2
-#define ATB_HD44780_DIGITS  16
-
-#define ATB_HD44780_DAT_PRT     PORTD
-#define ATB_HD44780_DAT_DDR     DDRD
-#define	ATB_HD44780_DAT_PIN	    PIND
-#define ATB_HD44780_CMD_PRT	    PORTC
-#define ATB_HD44780_CMD_DDR	    DDRC
-
-#define ATB_HD44780_CMD_RS  	1
-#define ATB_HD44780_CMD_RW	    2
-#define ATB_HD44780_CMD_E	    3
-
+#include "atb_hd44780_config.h"
 
 /* Functions */
-
 
 /** Wait until display is not busy. */
 void _ATB_HD44780Wait();
@@ -76,8 +57,14 @@ void _ATB_HD44780Write(uint8_t _byt, uint8_t _isCmd);
     Print a string on display.
 
     @brief Send _string to display at current cursor position.
+    @todo Add a parameter to clear all the rest of the line.
+    @todo Add a parameter to center a string on the line.
 */
-void ATB_HD44780Print(char _string[]);
+void ATB_HD44780_PrintString(char* _string);
+
+void ATB_HD44780_PrintLine(char _string[], uint8_t _line);
+
+void _ATB_HD44780PrintByte(uint8_t _byte);
 
 /**
     Set new cursor position.
@@ -86,6 +73,5 @@ void ATB_HD44780Print(char _string[]);
     @param[in] _pos Position in line.
 */
 void ATB_HD44780SetCursor(uint8_t _lin, uint8_t _pos);
-
 
 #endif /* __ATB_HD44780 */

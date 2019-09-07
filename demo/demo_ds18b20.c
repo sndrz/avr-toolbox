@@ -18,8 +18,8 @@
     A MCU is atmega8, frequency is 8 MHz.
 */
 
-#include "atb_ds18b20.h"
-#include "atb_hd44780.h"
+#include "../atb/atb_ds18b20.h"
+#include "../atb/atb_hd44780.h"
 
 
 #define SENSOR_ONE  0
